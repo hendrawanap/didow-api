@@ -1,0 +1,26 @@
+{
+  "name": "didow-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "pm2 start ./src/app.js",
+    "dev": "nodemon ./src/app.js",
+    "lint": "eslint ./src"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@hapi/boom": "^10.0.0",
+    "@hapi/hapi": "^20.2.2",
+    "dotenv": "^16.0.1",
+    "firebase-admin": "^10.2.0",
+    "nodemon": "^2.0.16"
+  },
+  "devDependencies": {
+    "eslint": "^8.15.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.26.0"
+  }
+}
