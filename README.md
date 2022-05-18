@@ -46,14 +46,13 @@ src
 ```
 
 ## Development Guide
-For example, you're going to implements new route called `/items`:
+For example, you're going to implements new route called `/items` with issue referenced to "#6 Implements items route":
 ### Commits, Push & Pull Request:
-1. If you're currently in `master` branch, checkout to `develop` branch first.
-2. Then if you're in `develop` branch, checkout to `items-new` branch.
+1. Checkout to related branch `6-implements-items-route`.
 3. Implements your `/items` route implementations.
-4. Commit your changes incrementally to your current branch `items-new`.
-5. After you completed all of the current route features, push your `items-new` branch to the remote repository.
-6. Create a new pull request from `items-new` branch to `develop` branch in Github.
+4. Commit your changes incrementally to your current branch `6-implements-items-route`.
+5. After you completed all of the current route features, push your changes.
+6. Create a new pull request from `6-implements-items-route` branch to `develop` branch in Github.
 
 ### Adding routes:
 1. Create your route definition file in `.../routes/items.js` (For reference check: `.../routes/words.js`).
