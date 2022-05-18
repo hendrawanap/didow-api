@@ -1,0 +1,1259 @@
+openapi: 3.0.0
+info:
+  version: "1.0.0"
+  title: "Didow API"
+  description: This API provides Didow app the configured questions data, user progresses, and exercises histories
+  license:
+    name: MIT
+servers:
+  - url: "localhost:5000/api/v1"
+paths:
+  /questions:
+    get:
+      summary: Return generated questions
+      description: Return generated questions based on exercise type and other parameters
+      parameters:
+        - name: type
+          in: query
+          description: Exercise type (`ASSESSMENT`, `AUTO`, `CUSTOM`)
+          required: true
+          schema:
+            type: string
+            enum: [ASSESSMENT, AUTO, CUSTOM]
+            example: ASSESSMENT
+        - name: weightPoint
+          in: query
+          description: User weight point (only for and required by `AUTO` exercise type)
+          required: false
+          schema:
+            type: integer
+        - name: qty
+          in: query
+          description: The number of questions to return (only for and required by `CUSTOM` exercise type)
+          required: false
+          schema:
+            type: integer
+        - name: easy
+          in: query
+          description: Includes easy level questions (only for and required by `CUSTOM` exercise type)
+          required: false
+          schema:
+            type: boolean
+        - name: medium
+          in: query
+          description: Includes medium level questions (only for and required by `CUSTOM` exercise type)
+          required: false
+          schema:
+            type: boolean
+        - name: hard
+          in: query
+          description: Includes hard level questions (only for and required by `CUSTOM` exercise type)
+          required: false
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: Returned configured questions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Questions"
+                  message:
+                    type: string
+                    example: success
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+  /words:
+    get:
+      summary: Return all words
+      description: Return all words
+      parameters:
+        - name: keyword
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Returned all words
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: success
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Word"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+    post:
+      summary: Create a word
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Word"
+      responses:
+        "200":
+          description: Created a word
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        example: 2KaQzhxjCjjgULYJO7zt
+                      createdAt:
+                        type: integer
+                        example: 1652783884490
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+  /words/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Word ID
+        schema:
+          type: string
+    get:
+      summary: Return a word by id
+      responses:
+        "200":
+          description: Returned a word by id
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: success
+                  data:
+                    $ref: "#/components/schemas/Word"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+    put:
+      summary: Modify a word
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Word"
+      responses:
+        "200":
+          description: Modified a word
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      updatedAt:
+                        type: integer
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+    delete:
+      summary: Delete a word
+      responses:
+        "200":
+          description: Deleted a word
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      deletedAt:
+                        type: integer
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+  /exercises:
+    get:
+      summary: Return user exercise histories
+      description: "Return user exercise histories with default: startDate is a week before now, endDate is now, limit 6"
+      parameters:
+        - name: userId
+          in: query
+          required: false
+          description: Specify the user id to return specific user exercise histories
+          schema:
+            type: string
+        - name: groupBy
+          in: query
+          required: false
+          description: Group exercise histories by `answers` or `attempts`
+          schema:
+            type: string
+            enum: [answers, attempts]
+        - name: limit
+          in: query
+          required: true
+          description: Number of histories to return
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: Starting number of histories to return
+          schema:
+            type: integer
+        - name: startDate
+          in: query
+          required: false
+          description: Start date of histories to return
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          required: false
+          description: End date of histories to return
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: Returned user exercise histories
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      oneOf:
+                      - $ref: "#/components/schemas/ExerciseAlt"
+                      - $ref: "#/components/schemas/Exercise"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+    post:
+      summary: Create a user exercise history
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Exercise"
+      responses:
+        "200":
+          description: Created a user exercise history
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      createdAt:
+                        type: integer
+  /assessments:
+    get:
+      summary: Return all assessment reports
+      responses:
+        "200":
+          description: Returned all assessment reports
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Assessment"
+                  message:
+                    type: string
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+    post:
+      summary: Sends assessment results to be analyzed
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - answers
+              properties:
+                answers:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/Answer"
+      responses:
+        "200":
+          description: return exercise
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      assessmentId:
+                        type: string
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+  /assessments/{id}:
+    parameters:
+      - name: id
+        in: path
+        description: Assessment ID
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Returns assessments report of spesific id
+      responses:
+        "200":
+          description: return assessment
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Assessment"
+                  message:
+                    type: string
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+  /users:
+    get:
+      summary: Return all users info
+      responses:
+        "200":
+          description: Returned all users info
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/UserInfo"
+                  message:
+                    type: string
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+    post:
+      summary: Create a new user info
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserInfo"
+      responses:
+        "200":
+          description: Created a new user info
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      createdAt:
+                        type: integer
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+  /users/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: User ID
+        schema:
+          type: string
+    get:
+      summary: Get specific user info
+      responses:
+        "200":
+          description: Get specific user info
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/UserInfo"
+                  message:
+                    type: string
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+    put:
+      summary: Edit specific user info
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                nickname:
+                  type: string
+                gender:
+                  type: string
+                  enum: [MALE, FEMALE]
+                birthDate:
+                  type: string
+      responses:
+        "200":
+          description: Successfully modified spesific user info
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      updatedAt:
+                        type: integer
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+  /items:
+    get:
+      summary: Return all avatar items
+      responses:
+        "200":
+          description: Returned all avatar items
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Item"
+                  message:
+                    type: string
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+    post:
+      summary: Create an avatar item
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Item"
+      responses:
+        "201":
+          description: Created an avatar item
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      createdAt:
+                        type: integer
+                  message:
+                    type: string
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+  /items/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Item ID
+        schema:
+          type: string
+    get:
+      summary: Return specific avatar item
+      responses:
+        "200":
+          description: Returned specific avatar item
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Item"
+                  message:
+                    type: string
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+    put:
+      summary: Modify specific avatar item
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Item"
+      responses:
+        "200":
+          description: Modified spesific avatar item
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      updatedAt:
+                        type: integer
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+    delete:
+      summary: Remove spesific avatar item
+      responses:
+        "200":
+          description: Removed spesific avatar item
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      deletedAt:
+                        type: integer
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+  /avatars:
+    get:
+      summary: Return users avatars
+      parameters:
+        - name: userId
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Returned users avatars
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Avatar"
+                      message:
+                        type: string
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/Avatar"
+                      message:
+                        type: string
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+    post:
+      summary: Create a new user avatar
+      description: Create a new user avatar using default values
+      parameters:
+        - name: userId
+          in: query
+          required: true
+          description: User ID
+          schema:
+            type: string
+      responses:
+        "201":
+          description: Created a new user avatar
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      createdAt:
+                        type: integer
+                  message:
+                    type: string
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+  /avatars/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Avatar ID
+        schema:
+          type: string
+    get:
+      summary: Return specific avatar
+      responses:
+        "200":
+          description: Returned specific avatar
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Avatar"
+                  message:
+                    type: string
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+    put:
+      summary: Modify spesific avatar
+      parameters:
+        - name: top
+          in: query
+          required: false
+          description: Top item ID to be equipped
+          schema:
+            type: string
+        - name: body
+          in: query
+          required: false
+          description: Body item ID to be equipped
+          schema:
+            type: string
+        - name: bottom
+          in: query
+          required: false
+          description: Bottom item ID to be equipped
+          schema:
+            type: string
+        - name: buy
+          in: query
+          required: false
+          description: Item ID to be bought
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Modified specific avatar
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  updatedAt:
+                    type: string
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+  /suggestions:
+    get:
+      summary: Return generated suggestion
+      parameters:
+        - name: userId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Returned generated suggestion
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: string
+                    example: Kamu perlu meningkatkan lagi kemampuanmu
+                  message:
+                    type: string
+                    example: success
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        default:
+          $ref: "#/components/responses/UnexpectedError"
+
+components:
+  schemas:
+    Question:
+      type: object
+      required:
+        - word
+        - syllables
+        - hintImg
+        - type
+      properties:
+        word:
+          type: string
+        syllables:
+          type: integer
+        hintImg:
+          type: string
+        type:
+          type: string
+        multipleChoice:
+          type: object
+          nullable: true
+          properties:
+            choices:
+              type: array
+              items:
+                type: string
+        scrambleWords:
+          type: object
+          nullable: true
+          properties:
+            letters:
+              type: array
+              items:
+                type: string
+            hintHangman:
+              type: array
+              items:
+                type: string
+        handwriting:
+          type: object
+          nullable: true
+          properties:
+            hintHangman:
+              type: array
+              items:
+                type: string
+    Questions:
+      type: array
+      items:
+        $ref: "#/components/schemas/Question"
+      example:
+        - word: buku
+          syllables: 2
+          hintImg: "https://google.com/buku.jpg"
+          type: multipleChoice
+          multipleChoice:
+            choices: [buku, buqu, duku, kuku]
+          scrambleWords: null
+          handwriting: null
+        - word: buku
+          syllables: 2
+          hintImg: "https://google.com/buku.jpg"
+          type: scrambleWords
+          multipleChoice: null
+          scrambleWords:
+            letters: [d, b, q, u, u, k]
+            hintHangman: [b, _, _, u]
+          handwriting: null
+        - word: buku
+          syllables: 2
+          hintImg: "https://google.com/buku.jpg"
+          type: handwriting
+          multipleChoiceQuestion: null
+          scrambleWords: null
+          handwriting:
+            hintHangman: [b, _, _, u]
+    Word:
+      type: object
+      required:
+        - word
+      properties:
+        id:
+          type: string
+          readOnly: true
+        word:
+          type: string
+        syllables:
+          type: string
+        hintImg:
+          type: string
+      example:
+        id: 2KaQzhxjCjjgULYJO7zt
+        syllables: 2
+        word: buku
+        hintImg: https://google.com/buku.jpg
+    Exercise:
+      type: object
+      required:
+        - userId
+        - endTime
+        - avgSyllables
+        - questionsCount
+        - attempts
+      properties:
+        userId:
+          type: string
+          writeOnly: true
+        endTime:
+          type: integer
+        avgSyllables:
+          type: integer
+        questionsQty:
+          type: integer
+        attempts:
+          $ref: "#/components/schemas/Attempts"
+      example:
+        userId: 2KaQzhxjCjjgULYJO7zt
+        endTime: 1652783884490
+        avgSyllables: 2
+        questionsQty: 7
+        attempts:
+          - attemptNumber: 1
+            wrongAnswers:
+              - number: 3
+                word: buku
+                answer: kuku
+                type: multipleChoice
+    ExerciseAlt:
+      type: object
+      required:
+        - userId
+        - endTime
+        - avgSyllables
+        - questionsCount
+        - wrongAnswers
+      properties:
+        userId:
+          type: string
+          writeOnly: true
+        endTime:
+          type: integer
+        avgSyllables:
+          type: integer
+        questionsQty:
+          type: integer
+        wrongAnswers:
+          type: array
+          items:
+            type: object
+            required:
+              - number
+              - word
+              - type
+              - attempts
+            properties:
+              number:
+                type: integer
+              word:
+                type: string
+              type:
+                type: string
+              attempts:
+                type: array
+                items:
+                  type: object
+                  required:
+                    - answer
+                    - attemptNumber
+                  properties:
+                    answer:
+                      type: string
+                    attemptNumber:
+                      type: integer
+      example:
+        userId: 2KaQzhxjCjjgULYJO7zt
+        endTime: 1652783884490
+        avgSyllables: 2
+        questionsQty: 7
+        wrongAnswers:
+          - number: 3
+            word: buku
+            type: multipleChoice
+            attempts:
+              - attemptNumber: 1
+                answer: kuku
+    Attempts:
+      type: array
+      items:
+        minItems: 0
+        type: object
+        required:
+          - attemptNumber
+          - wrongAnswer
+        properties:
+          attemptNumber:
+            type: integer
+          wrongAnswer:
+            type: array
+            items:
+              type: object
+              properties:
+                number:
+                  type: integer
+                word:
+                  type: string
+                answer:
+                  type: string
+                type:
+                  type: string
+    Answer:
+      type: object
+      required:
+        - syllables
+        - isCorrect
+        - type
+      properties:
+        syllables:
+          type: integer
+        isCorrect:
+          type: boolean
+        type:
+          type: string
+        word:
+          type: string
+        answer:
+          type: string
+      example:
+        word: buku
+        syllables: 2
+        answer: qubu
+        isCorrect: false
+        type: MultipleChoice
+    Assessment:
+      type: object
+      properties:
+        correctPercentage:
+          type: object
+          properties:
+            multiplechoice:
+              type: number
+              format: float
+            scrambleWords:
+              type: number
+              format: float
+            handwriting:
+              type: number
+              format: float
+        score:
+          type: integer
+      example:
+        correctPercentage:
+          multipleChoice: 0.2
+          scrambleWords: 0.15
+          handwriting: 0.05
+        score: 123
+    UserInfo:
+      type: object
+      required:
+        - id
+        - username
+      properties:
+        id:
+          type: string
+        username:
+          type: string
+        nickname:
+          type: string
+        gender:
+          type: string
+          enum: [MALE, FEMALE]
+        birthDate:
+          type: string
+          format: date
+        weightPoint:
+          type: integer
+      example:
+        id: 2KaQzhxjCjjgULYJO7zt
+        username: Hendrawan Anantha
+        nickname: Baps
+        gender: MALE
+        birthDate: 2001-04-11
+        weightPoint: 100
+    Item:
+      type: object
+      properties:
+        id:
+          type: string
+        assetUrl:
+          type: string
+        type:
+          type: string
+          enum: ['TOP', 'BODY', 'UNDER']
+    Avatar:
+      type: object
+      properties:
+        id:
+          type: string
+          writeOnly: true
+        userId:
+          type: string
+          writeOnly: true
+        equippedItems:
+          type: object
+          properties:
+            top:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: Top item ID
+                assetUrl:
+                  type: string
+                  description: Top item asset URL
+            body:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: Body item ID
+                assetUrl:
+                  type: string
+                  description: Body item asset URL
+            bottom:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: Bottom item ID
+                assetUrl:
+                  type: string
+                  description: Bottom item asset URL
+        rewardPoint:
+          type: integer
+          description: User current avatar point
+        ownedItems:
+          type: array
+          description: Item IDs
+          items:
+            type: string
+    Error:
+      type: object
+      required:
+        - statusCode
+        - message
+        - error
+      properties:
+        statusCode:
+          type: integer
+        message:
+          type: string
+        error:
+          type: string
+  responses:
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            statusCode: 400
+            message: Bad Request
+            error: Bad Request
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            statusCode: 401
+            message: Unauthorized
+            error: Unauthorized
+    NotFound:
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            statusCode: 404
+            message: Not Found
+            error: Not Found
+    UnexpectedError:
+      description: Unexpected error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            statusCode: 500
+            message: Unexpected Error
+            error: Unexpected Error
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
