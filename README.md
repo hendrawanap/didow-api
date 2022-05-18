@@ -63,11 +63,11 @@ For example, you're going to implements new route called `/items` with issue ref
     ```js
     // Example of .../handlers/items.js
 
-    const getItems = async (request, h) {
+    const getItems = async (request, h) => {
       // Implementations
     };
 
-    const createItem = async (request, h) {
+    const createItem = async (request, h) => {
       // Implementations
     };
 
@@ -102,7 +102,7 @@ For example, you're going to implements new route called `/items` with issue ref
 2. Access the database via `db` object in `request.server.app.firestore`
 
     ```js
-    const getItems = async (request, h) {
+    const getItems = async (request, h) => {
       const { db } = request.server.app.firestore;
       // Implementations
     };
