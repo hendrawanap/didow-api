@@ -2,6 +2,7 @@ require('dotenv').config();
 const hapi = require('@hapi/hapi');
 const boom = require('@hapi/boom');
 const routes = require('./routes/index');
+const firebase = require('./services/firebase');
 
 const init = async () => {
   const server = hapi.server({
@@ -14,6 +15,8 @@ const init = async () => {
     },
   });
 
+  const { firestore } = await firebase.init();
+  server.app.firestore = firestore;
   server.app.boom = boom;
 
   await server.register(routes);
