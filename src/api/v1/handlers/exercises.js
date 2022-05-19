@@ -30,6 +30,44 @@ const getExercisesGroupByAnswers = async (db, ref) => {
   return exercises;
 };
 
+const transfromWrongAnswersToAttempts = (wrongAnswers) => {
+  const attempts = {};
+
+  wrongAnswers.forEach((wrongAnswer) => {
+    wrongAnswer.attempts.forEach((attempt, index) => {
+      if (!Object.prototype.hasOwnProperty.call(attempts, String(index + 1))) {
+        attempts[index + 1] = {
+          attemptNumber: index + 1,
+          wrongAnswers: [],
+        };
+      }
+      attempts[index + 1].wrongAnswers.push({
+        number: wrongAnswer.number,
+        word: wrongAnswer.word,
+        type: wrongAnswer.type,
+        answer: attempt.answer,
+      });
+    });
+  });
+
+  return attempts;
+};
+
+const groupExercisesByAttempts = (exercises) => {
+  const transformed = exercises.map((exercise) => {
+    const result = {
+      userId: exercise.userId,
+      endTime: exercise.endTime,
+      avgSyllables: exercise.avgSyllables,
+      questionsQty: exercise.questionsQty,
+    };
+    const attempts = transfromWrongAnswersToAttempts(exercise.wrongAnswers);
+    result.attempts = Object.values(attempts);
+    return result;
+  });
+  return transformed;
+};
+
 const getExercises = async (request, h) => {
   const { boom } = request.server.app;
   const {
@@ -51,6 +89,10 @@ const getExercises = async (request, h) => {
     exercises = await getExercisesGroupByAnswers(db, ref);
   } catch (error) {
     return boom.badImplementation();
+  }
+
+  if (groupBy === 'attempts') {
+    exercises = groupExercisesByAttempts(exercises);
   }
 
   const response = {
