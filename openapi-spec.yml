@@ -273,6 +273,12 @@ paths:
           schema:
             type: string
             format: date
+        - name: X-Timezone
+          in: header
+          required: true
+          description: Client timezone
+          schema:
+            type: integer
       responses:
         "200":
           description: Returned user exercise histories
