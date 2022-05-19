@@ -138,7 +138,79 @@ const getExercises = async (request, h) => {
   return h.response(response).code(200);
 };
 
+const transformAttemptsToWrongAnswers = (attempts) => {
+  const wrongAnswers = {};
+
+  attempts.map((attempt) => attempt.wrongAnswers).forEach((attempt, index) => {
+    if (index === 0) {
+      attempt.forEach((wrongAnswer) => {
+        wrongAnswers[wrongAnswer.number] = {
+          number: wrongAnswer.number,
+          attempts: [wrongAnswer.answer],
+          type: wrongAnswer.type,
+          word: wrongAnswer.word,
+        };
+      });
+    } else {
+      attempt.forEach((wrongAnswer) => {
+        wrongAnswers[wrongAnswer.number].attempts.push(wrongAnswer.answer);
+      });
+    }
+  });
+
+  return Object.values(wrongAnswers);
+};
+
 const createExercise = async (request, h) => {
+  const { boom } = request.server.app;
+  const {
+    userId,
+    endTime = Date.now(),
+    avgSyllables,
+    attempts,
+    questionsQty,
+  } = request.payload;
+
+  const exerciseObject = {
+    userId,
+    avgSyllables,
+    endTime,
+    questionsQty,
+  };
+
+  // Add exercise object to the 'exercises' collection
+  const { db } = request.server.app.firestore;
+  let createdExercise;
+  try {
+    createdExercise = await db.collection('exercises').add(exerciseObject);
+  } catch (error) {
+    return boom.badImplementation(error.message);
+  }
+
+  // Transforms attempts to wrongAnswer objects
+  const wrongAnswers = transformAttemptsToWrongAnswers(attempts);
+
+  // Add transformed attempts to 'wrongAnswers' subcollections
+  const batch = db.batch();
+  wrongAnswers.forEach((wrongAnswer) => batch.set(
+    db.collection('exercises')
+      .doc(createdExercise.id)
+      .collection('wrongAnswers')
+      .doc(wrongAnswer.number.toString()),
+    {
+      word: wrongAnswer.word,
+      attempts: wrongAnswer.attempts,
+      type: wrongAnswer.type,
+    },
+  ));
+
+  try {
+    await batch.commit();
+  } catch (error) {
+    boom.badImplementation(error.message);
+  }
+
+  return h.response({ message: 'success', createdAt: Date.now() }).code(200);
 };
 
 module.exports = { getExercises, createExercise };
