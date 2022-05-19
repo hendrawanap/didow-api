@@ -961,12 +961,11 @@ components:
         - userId
         - endTime
         - avgSyllables
-        - questionsCount
+        - questionsQty
         - attempts
       properties:
         userId:
           type: string
-          writeOnly: true
         endTime:
           type: integer
         avgSyllables:
@@ -993,12 +992,11 @@ components:
         - userId
         - endTime
         - avgSyllables
-        - questionsCount
+        - questionsQty
         - wrongAnswers
       properties:
         userId:
           type: string
-          writeOnly: true
         endTime:
           type: integer
         avgSyllables:
@@ -1056,7 +1054,7 @@ components:
         properties:
           attemptNumber:
             type: integer
-          wrongAnswer:
+          wrongAnswers:
             type: array
             items:
               type: object
