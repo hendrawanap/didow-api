@@ -279,6 +279,7 @@ paths:
           description: Client timezone
           schema:
             type: integer
+          example: 7
       responses:
         "200":
           description: Returned user exercise histories
@@ -1056,7 +1057,7 @@ components:
         type: object
         required:
           - attemptNumber
-          - wrongAnswer
+          - wrongAnswers
         properties:
           attemptNumber:
             type: integer
