@@ -112,7 +112,7 @@ paths:
             schema:
               $ref: "#/components/schemas/Word"
       responses:
-        "200":
+        "201":
           description: Created a word
           content:
             application/json:
@@ -313,7 +313,7 @@ paths:
             schema:
               $ref: "#/components/schemas/Exercise"
       responses:
-        "200":
+        "201":
           description: Created a user exercise history
           content:
             application/json:
@@ -368,8 +368,8 @@ paths:
                   items:
                     $ref: "#/components/schemas/Answer"
       responses:
-        "200":
-          description: return exercise
+        "201":
+          description: Created assessment report
           content:
             application/json:
               schema:
@@ -452,7 +452,7 @@ paths:
             schema:
               $ref: "#/components/schemas/UserInfo"
       responses:
-        "200":
+        "201":
           description: Created a new user info
           content:
             application/json:
