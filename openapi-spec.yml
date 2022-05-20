@@ -373,8 +373,11 @@ paths:
                   data:
                     type: object
                     properties:
-                      assessmentId:
+                      id:
                         type: string
+                        description: Assessment ID
+                      createdAt:
+                        type: integer
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
@@ -1091,10 +1094,12 @@ components:
         syllables: 2
         answer: qubu
         isCorrect: false
-        type: MultipleChoice
+        type: multipleChoice
     Assessment:
       type: object
       properties:
+        id:
+          type: string
         correctPercentage:
           type: object
           properties:
@@ -1110,6 +1115,7 @@ components:
         score:
           type: integer
       example:
+        id: 7BN7SuqL4i7DhFbZljIQ
         correctPercentage:
           multipleChoice: 0.2
           scrambleWords: 0.15
