@@ -3,11 +3,14 @@
 const helloRoutes = require('./hello');
 const wordsRoutes = require('./words');
 const assessmentsRoutes = require('./assessments');
+const exercisesRoutes = require('./exercises');
+
 
 const routes = [
   helloRoutes,
   wordsRoutes,
   assessmentsRoutes,
+  exercisesRoutes,
 ];
 
 const BASE_PATH = '/api/v1';

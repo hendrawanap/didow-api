@@ -273,6 +273,13 @@ paths:
           schema:
             type: string
             format: date
+        - name: X-Timezone
+          in: header
+          required: true
+          description: Client timezone
+          schema:
+            type: integer
+          example: 7
       responses:
         "200":
           description: Returned user exercise histories
@@ -964,12 +971,11 @@ components:
         - userId
         - endTime
         - avgSyllables
-        - questionsCount
+        - questionsQty
         - attempts
       properties:
         userId:
           type: string
-          writeOnly: true
         endTime:
           type: integer
         avgSyllables:
@@ -996,12 +1002,11 @@ components:
         - userId
         - endTime
         - avgSyllables
-        - questionsCount
+        - questionsQty
         - wrongAnswers
       properties:
         userId:
           type: string
-          writeOnly: true
         endTime:
           type: integer
         avgSyllables:
@@ -1055,11 +1060,11 @@ components:
         type: object
         required:
           - attemptNumber
-          - wrongAnswer
+          - wrongAnswers
         properties:
           attemptNumber:
             type: integer
-          wrongAnswer:
+          wrongAnswers:
             type: array
             items:
               type: object
