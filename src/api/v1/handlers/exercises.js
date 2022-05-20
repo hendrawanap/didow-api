@@ -95,11 +95,14 @@ const getExercises = async (request, h) => {
   const { 'x-timezone': clientTimezoneOffset } = request.headers;
   const { DEFAULT_START_DATE, DEFAULT_END_DATE } = getDefaultDate(clientTimezoneOffset);
   const { boom } = request.server.app;
+  // TODO: Add offset & limit query
   const {
     userId,
     groupBy = 'answers',
     startDate,
     endDate,
+    // offset = 0,
+    // limit = 10,
   } = request.query;
 
   // Build DB queries
