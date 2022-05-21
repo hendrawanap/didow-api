@@ -493,6 +493,14 @@ paths:
           type: string
     get:
       summary: Get specific user info
+      parameters:
+        - name: weightOnly
+          in: query
+          required: false
+          description: Return only the user weight point
+          schema:
+            type: boolean
+          example: true
       responses:
         "200":
           description: Get specific user info
