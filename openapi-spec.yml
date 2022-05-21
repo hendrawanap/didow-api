@@ -983,7 +983,7 @@ components:
         word:
           type: string
         syllables:
-          type: string
+          type: integer
         hintImg:
           type: string
       example:
