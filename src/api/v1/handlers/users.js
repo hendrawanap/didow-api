@@ -80,7 +80,40 @@ const getUser = async (request, h) => {
 };
 
 const modifyUser = async (request, h) => {
+  const { id } = request.params;
+  const {
+    username,
+    nickname,
+    gender,
+    birthDate,
+  } = request.payload;
 
+  const userObject = {};
+  if (username !== undefined) userObject.username = username;
+  if (nickname !== undefined) userObject.nickname = nickname;
+  if (gender !== undefined) userObject.gender = gender;
+  if (birthDate !== undefined) userObject.birthDate = birthDate;
+
+  const { db } = request.server.app.firestore;
+  let result;
+  try {
+    result = await db.collection('users').doc(id).update(userObject);
+  } catch (error) {
+    const { boom } = request.server.app;
+    if (error.message.includes('NOT_FOUND')) {
+      return boom.notFound();
+    }
+    return boom.badImplementation();
+  }
+
+  const response = {
+    data: {
+      id,
+      updatedAt: result.writeTime.toDate().getTime(),
+    },
+    message: 'success',
+  };
+  return h.response(response).code(200);
 };
 
 module.exports = {
