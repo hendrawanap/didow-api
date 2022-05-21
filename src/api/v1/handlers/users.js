@@ -15,7 +15,43 @@ const getUsers = async (request, h) => {
 };
 
 const createUser = async (request, h) => {
+  const {
+    id,
+    username,
+    nickname,
+    gender,
+    birthDate,
+    weightPoint,
+  } = request.payload;
 
+  const userObject = {
+    username,
+    nickname,
+    gender,
+    birthDate,
+    weightPoint,
+  };
+
+  const { db } = request.server.app.firestore;
+  let result;
+  try {
+    result = await db.collection('users').doc(id).create(userObject);
+  } catch (error) {
+    const { boom } = request.server.app;
+    if (error.message.includes('ALREADY_EXISTS')) {
+      return boom.conflict(`User id ${id} already exists`);
+    }
+    return boom.badImplementation();
+  }
+
+  const response = {
+    message: 'success',
+    data: {
+      id,
+      createdAt: result.writeTime.toDate().getTime(),
+    },
+  };
+  return h.response(response).code(201);
 };
 
 const getUser = async (request, h) => {
