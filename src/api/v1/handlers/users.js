@@ -55,7 +55,28 @@ const createUser = async (request, h) => {
 };
 
 const getUser = async (request, h) => {
+  const { id } = request.params;
+  const { weightOnly } = request.query;
+  const { db } = request.server.app.firestore;
 
+  const doc = await db.collection('users').doc(id).get();
+  if (!doc.exists) {
+    const { boom } = request.server.app;
+    return boom.notFound();
+  }
+
+  let userObject;
+  if (weightOnly?.toLowerCase() === 'true') {
+    userObject = { id: doc.id, weightPoint: doc.get('weightPoint') };
+  } else {
+    userObject = { id: doc.id, ...doc.data() };
+  }
+
+  const response = {
+    data: userObject,
+    message: 'success',
+  };
+  return h.response(response).code(200);
 };
 
 const modifyUser = async (request, h) => {
