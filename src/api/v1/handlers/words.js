@@ -47,7 +47,6 @@ const getWord = async (request, h) => {
 
   const { db } = request.server.app.firestore;
   const doc = await db.collection('words').doc(id).get();
-  const { word, syllables, hintImg } = doc.data();
 
   if (!doc.exists) {
     const { boom } = request.server.app;
