@@ -47,14 +47,13 @@ const getWord = async (request, h) => {
 
   const { db } = request.server.app.firestore;
   const doc = await db.collection('words').doc(id).get();
-  const { word, syllables, hintImg } = doc.data();
 
-  const wordObject = {
-    id: doc.id,
-    word,
-    syllables,
-    hintImg,
-  };
+  if (!doc.exists) {
+    const { boom } = request.server.app;
+    return boom.notFound();
+  }
+
+  const wordObject = { id: doc.id, ...doc.data() };
 
   const response = {
     data: wordObject,

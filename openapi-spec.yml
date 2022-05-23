@@ -1157,6 +1157,7 @@ components:
       required:
         - id
         - username
+        - weightPoint
       properties:
         id:
           type: string
@@ -1166,7 +1167,7 @@ components:
           type: string
         gender:
           type: string
-          enum: [MALE, FEMALE]
+          enum: [male, female]
         birthDate:
           type: string
           format: date
@@ -1176,7 +1177,7 @@ components:
         id: 2KaQzhxjCjjgULYJO7zt
         username: Hendrawan Anantha
         nickname: Baps
-        gender: MALE
+        gender: male
         birthDate: 2001-04-11
         weightPoint: 100
     Item:

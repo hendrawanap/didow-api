@@ -26,11 +26,12 @@ const createUser = async (request, h) => {
 
   const userObject = {
     username,
-    nickname,
-    gender,
-    birthDate,
+    nickname: nickname || username.split(' ')[0],
     weightPoint,
   };
+
+  if (gender !== undefined) userObject.gender = gender;
+  if (birthDate !== undefined) [userObject.birthDate] = birthDate.split('T');
 
   const { db } = request.server.app.firestore;
   let result;
@@ -92,7 +93,7 @@ const modifyUser = async (request, h) => {
   if (username !== undefined) userObject.username = username;
   if (nickname !== undefined) userObject.nickname = nickname;
   if (gender !== undefined) userObject.gender = gender;
-  if (birthDate !== undefined) userObject.birthDate = birthDate;
+  if (birthDate !== undefined) [userObject.birthDate] = birthDate.split('T');
 
   const { db } = request.server.app.firestore;
   let result;

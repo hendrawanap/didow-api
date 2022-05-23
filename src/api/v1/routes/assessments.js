@@ -1,4 +1,5 @@
 const { getAssessments, createAssessment, getAssessment } = require('../handlers/assessments');
+const { createAssessmentPayload } = require('../validations/index').assessments;
 
 const BASE_PATH = '/assessments';
 const routes = [
@@ -11,6 +12,11 @@ const routes = [
     method: 'POST',
     path: BASE_PATH,
     handler: createAssessment,
+    options: {
+      validate: {
+        payload: createAssessmentPayload,
+      },
+    },
   },
   {
     method: 'GET',
