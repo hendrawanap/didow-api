@@ -2,10 +2,12 @@
 // Register child routes
 const helloRoutes = require('./hello');
 const wordsRoutes = require('./words');
+const avatarsRoutes = require('./avatars');
 
 const routes = [
   helloRoutes,
   wordsRoutes,
+  avatarsRoutes,
 ];
 
 const BASE_PATH = '/api/v1';
