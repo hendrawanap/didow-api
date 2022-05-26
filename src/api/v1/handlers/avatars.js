@@ -71,7 +71,42 @@ const createAvatar = async (request, h) => {
 };
 
 const getAvatar = async (request, h) => {
+  const { id } = request.params;
 
+  const { db } = request.server.app.firestore;
+  const doc = await db.collection('avatars').doc(id).get();
+
+  if (!doc.exists) {
+    const { boom } = request.server.app;
+    return boom.notFound();
+  }
+
+  const {
+    topItem,
+    bodyItem,
+    bottomItem,
+    ownedItems,
+    rewardPoint,
+    userId,
+  } = doc.data();
+
+  const avatarObject = {
+    id: doc.id,
+    userId,
+    equippedItems: {
+      top: topItem,
+      body: bodyItem,
+      bottom: bottomItem,
+    },
+    rewardPoint,
+    ownedItems,
+  };
+
+  const response = {
+    data: avatarObject,
+    message: 'success',
+  };
+  return h.response(response).code(200);
 };
 
 const modifyAvatar = async (request, h) => {
