@@ -699,21 +699,14 @@ paths:
           content:
             application/json:
               schema:
-                oneOf:
-                  - type: object
-                    properties:
-                      data:
-                        type: array
-                        items:
-                          $ref: "#/components/schemas/Avatar"
-                      message:
-                        type: string
-                  - type: object
-                    properties:
-                      data:
-                        $ref: "#/components/schemas/Avatar"
-                      message:
-                        type: string
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Avatar"
+                  message:
+                    type: string
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
@@ -1157,40 +1150,21 @@ components:
       properties:
         id:
           type: string
-          writeOnly: true
+          readOnly: true
         userId:
           type: string
-          writeOnly: true
         equippedItems:
           type: object
           properties:
             top:
-              type: object
-              properties:
-                id:
-                  type: string
-                  description: Top item ID
-                assetUrl:
-                  type: string
-                  description: Top item asset URL
+              type: string
+              description: Top item ID
             body:
-              type: object
-              properties:
-                id:
-                  type: string
-                  description: Body item ID
-                assetUrl:
-                  type: string
-                  description: Body item asset URL
+              type: string
+              description: Body item ID
             bottom:
-              type: object
-              properties:
-                id:
-                  type: string
-                  description: Bottom item ID
-                assetUrl:
-                  type: string
-                  description: Bottom item asset URL
+              type: string
+              description: Bottom item ID
         rewardPoint:
           type: integer
           description: User current avatar point
