@@ -2,6 +2,7 @@
 // Register child routes
 const helloRoutes = require('./hello');
 const wordsRoutes = require('./words');
+const avatarsRoutes = require('./avatars');
 const usersRoutes = require('./users');
 const assessmentsRoutes = require('./assessments');
 const exercisesRoutes = require('./exercises');
@@ -9,6 +10,7 @@ const exercisesRoutes = require('./exercises');
 const routes = [
   helloRoutes,
   wordsRoutes,
+  avatarsRoutes,
   usersRoutes,
   assessmentsRoutes,
   exercisesRoutes,
