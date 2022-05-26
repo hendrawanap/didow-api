@@ -41,7 +41,33 @@ const getAvatars = async (request, h) => {
 };
 
 const createAvatar = async (request, h) => {
+  const { userId } = request.query;
+  const DEFAULT_ITEMS = {
+    TOP: 'defaultTop',
+    BODY: 'defaultBody',
+    BOTTOM: 'defaultBottom',
+  };
+  const DEFAULT_POINT = 0;
+  const avatarObject = {
+    userId,
+    topItem: DEFAULT_ITEMS.TOP,
+    bodyItem: DEFAULT_ITEMS.BODY,
+    bottomItem: DEFAULT_ITEMS.BOTTOM,
+    rewardPoint: DEFAULT_POINT,
+    ownedItems: [DEFAULT_ITEMS.TOP, DEFAULT_ITEMS.BODY, DEFAULT_ITEMS.BOTTOM],
+  };
 
+  const { db } = request.server.app.firestore;
+  const result = await db.collection('avatars').add(avatarObject);
+
+  const response = {
+    data: {
+      id: result.id,
+      createdAt: Date.now(),
+    },
+    message: 'success',
+  };
+  return h.response(response).code(201);
 };
 
 const getAvatar = async (request, h) => {
