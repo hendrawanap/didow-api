@@ -112,7 +112,7 @@ paths:
             schema:
               $ref: "#/components/schemas/Word"
       responses:
-        "200":
+        "201":
           description: Created a word
           content:
             application/json:
@@ -273,6 +273,13 @@ paths:
           schema:
             type: string
             format: date
+        - name: X-Timezone
+          in: header
+          required: true
+          description: Client timezone
+          schema:
+            type: integer
+          example: 7
       responses:
         "200":
           description: Returned user exercise histories
@@ -306,7 +313,7 @@ paths:
             schema:
               $ref: "#/components/schemas/Exercise"
       responses:
-        "200":
+        "201":
           description: Created a user exercise history
           content:
             application/json:
@@ -361,8 +368,8 @@ paths:
                   items:
                     $ref: "#/components/schemas/Answer"
       responses:
-        "200":
-          description: return exercise
+        "201":
+          description: Created assessment report
           content:
             application/json:
               schema:
@@ -373,8 +380,11 @@ paths:
                   data:
                     type: object
                     properties:
-                      assessmentId:
+                      id:
                         type: string
+                        description: Assessment ID
+                      createdAt:
+                        type: integer
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
@@ -442,7 +452,7 @@ paths:
             schema:
               $ref: "#/components/schemas/UserInfo"
       responses:
-        "200":
+        "201":
           description: Created a new user info
           content:
             application/json:
@@ -463,6 +473,24 @@ paths:
           $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example:
+                      User id 555 already exists
+                  error:
+                    type: string
+                    example:
+                      Conflict
+                  statusCode:
+                    type: integer
+                    example: 409
         default:
           $ref: "#/components/responses/UnexpectedError"
   /users/{id}:
@@ -475,6 +503,14 @@ paths:
           type: string
     get:
       summary: Get specific user info
+      parameters:
+        - name: weightOnly
+          in: query
+          required: false
+          description: Return only the user weight point
+          schema:
+            type: boolean
+          example: true
       responses:
         "200":
           description: Get specific user info
@@ -699,21 +735,14 @@ paths:
           content:
             application/json:
               schema:
-                oneOf:
-                  - type: object
-                    properties:
-                      data:
-                        type: array
-                        items:
-                          $ref: "#/components/schemas/Avatar"
-                      message:
-                        type: string
-                  - type: object
-                    properties:
-                      data:
-                        $ref: "#/components/schemas/Avatar"
-                      message:
-                        type: string
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Avatar"
+                  message:
+                    type: string
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
@@ -947,7 +976,7 @@ components:
         word:
           type: string
         syllables:
-          type: string
+          type: integer
         hintImg:
           type: string
       example:
@@ -961,12 +990,11 @@ components:
         - userId
         - endTime
         - avgSyllables
-        - questionsCount
+        - questionsQty
         - attempts
       properties:
         userId:
           type: string
-          writeOnly: true
         endTime:
           type: integer
         avgSyllables:
@@ -993,12 +1021,11 @@ components:
         - userId
         - endTime
         - avgSyllables
-        - questionsCount
+        - questionsQty
         - wrongAnswers
       properties:
         userId:
           type: string
-          writeOnly: true
         endTime:
           type: integer
         avgSyllables:
@@ -1052,11 +1079,11 @@ components:
         type: object
         required:
           - attemptNumber
-          - wrongAnswer
+          - wrongAnswers
         properties:
           attemptNumber:
             type: integer
-          wrongAnswer:
+          wrongAnswers:
             type: array
             items:
               type: object
@@ -1091,10 +1118,12 @@ components:
         syllables: 2
         answer: qubu
         isCorrect: false
-        type: MultipleChoice
+        type: multipleChoice
     Assessment:
       type: object
       properties:
+        id:
+          type: string
         correctPercentage:
           type: object
           properties:
@@ -1110,6 +1139,7 @@ components:
         score:
           type: integer
       example:
+        id: 7BN7SuqL4i7DhFbZljIQ
         correctPercentage:
           multipleChoice: 0.2
           scrambleWords: 0.15
@@ -1120,6 +1150,7 @@ components:
       required:
         - id
         - username
+        - weightPoint
       properties:
         id:
           type: string
@@ -1129,7 +1160,7 @@ components:
           type: string
         gender:
           type: string
-          enum: [MALE, FEMALE]
+          enum: [male, female]
         birthDate:
           type: string
           format: date
@@ -1139,7 +1170,7 @@ components:
         id: 2KaQzhxjCjjgULYJO7zt
         username: Hendrawan Anantha
         nickname: Baps
-        gender: MALE
+        gender: male
         birthDate: 2001-04-11
         weightPoint: 100
     Item:
@@ -1157,40 +1188,21 @@ components:
       properties:
         id:
           type: string
-          writeOnly: true
+          readOnly: true
         userId:
           type: string
-          writeOnly: true
         equippedItems:
           type: object
           properties:
             top:
-              type: object
-              properties:
-                id:
-                  type: string
-                  description: Top item ID
-                assetUrl:
-                  type: string
-                  description: Top item asset URL
+              type: string
+              description: Top item ID
             body:
-              type: object
-              properties:
-                id:
-                  type: string
-                  description: Body item ID
-                assetUrl:
-                  type: string
-                  description: Body item asset URL
+              type: string
+              description: Body item ID
             bottom:
-              type: object
-              properties:
-                id:
-                  type: string
-                  description: Bottom item ID
-                assetUrl:
-                  type: string
-                  description: Bottom item asset URL
+              type: string
+              description: Bottom item ID
         rewardPoint:
           type: integer
           description: User current avatar point
