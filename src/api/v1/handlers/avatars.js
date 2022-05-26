@@ -110,7 +110,71 @@ const getAvatar = async (request, h) => {
 };
 
 const modifyAvatar = async (request, h) => {
+  const { id } = request.params;
+  const {
+    top,
+    body,
+    bottom,
+    buy,
+  } = request.query;
 
+  const avatarObject = {};
+  if (top !== undefined) avatarObject.topItem = top;
+  if (body !== undefined) avatarObject.bodyItem = body;
+  if (bottom !== undefined) avatarObject.bottomItem = bottom;
+
+  const { db, FieldValue } = request.server.app.firestore;
+  const ref = db.collection('avatars').doc(id);
+
+  // Run transaction
+  try {
+    await db.runTransaction(async (t) => {
+      // Update equipped items
+      if (Object.keys(avatarObject).length > 0) {
+        await t.update(ref, avatarObject);
+      }
+
+      // Update owned items
+      if (buy !== undefined) {
+        const ITEM_COST = 10;
+
+        // Check if document existed
+        const doc = await t.get(ref);
+        if (!doc.exists) {
+          throw Error('NOT_FOUND');
+        }
+
+        // Check if already had the item
+        const { ownedItems } = doc.data();
+        if (ownedItems.includes(buy)) {
+          throw Error('ALREADY_PURCHASED');
+        }
+
+        await t.update(ref, { ownedItems: FieldValue.arrayUnion(buy) });
+        await t.update(ref, { rewardPoint: FieldValue.increment(-ITEM_COST) });
+      }
+    });
+  } catch (error) {
+    const { boom } = request.server.app;
+
+    if (error.message.includes('NOT_FOUND')) {
+      return boom.notFound();
+    }
+
+    if (error.message.includes('ALREADY_PURCHASED')) {
+      return boom.badRequest('You have already purchased this item');
+    }
+
+    return boom.badImplementation();
+  }
+
+  const response = {
+    data: {
+      updatedAt: Date.now(),
+    },
+    message: 'success',
+  };
+  return h.response(response).code(200);
 };
 
 module.exports = {
