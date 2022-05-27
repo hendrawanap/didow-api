@@ -294,8 +294,8 @@ paths:
                     type: array
                     items:
                       oneOf:
-                      - $ref: "#/components/schemas/ExerciseAlt"
-                      - $ref: "#/components/schemas/Exercise"
+                        - $ref: "#/components/schemas/ExerciseAlt"
+                        - $ref: "#/components/schemas/Exercise"
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
@@ -482,12 +482,10 @@ paths:
                 properties:
                   message:
                     type: string
-                    example:
-                      User id 555 already exists
+                    example: User id 555 already exists
                   error:
                     type: string
-                    example:
-                      Conflict
+                    example: Conflict
                   statusCode:
                     type: integer
                     example: 409
@@ -1175,6 +1173,9 @@ components:
         weightPoint: 100
     Item:
       type: object
+      required:
+        - assetUrl
+        - type
       properties:
         id:
           type: string
@@ -1183,7 +1184,7 @@ components:
           type: string
         type:
           type: string
-          enum: ['TOP', 'BODY', 'UNDER']
+          enum: ["top", "body", "bottom"]
     Avatar:
       type: object
       properties:
@@ -1261,7 +1262,7 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Error'
+            $ref: "#/components/schemas/Error"
           example:
             statusCode: 500
             message: Unexpected Error
