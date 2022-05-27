@@ -6,6 +6,8 @@ const {
   deleteItem,
 } = require('../handlers/items');
 
+const { createItemPayload, modifyItemPayload } = require('../validations/index').items;
+
 const BASE_PATH = '/items';
 const routes = [
   {
@@ -17,6 +19,11 @@ const routes = [
     method: 'POST',
     path: BASE_PATH,
     handler: createItem,
+    options: {
+      validate: {
+        payload: createItemPayload,
+      },
+    },
   },
   {
     method: 'GET',
@@ -27,6 +34,11 @@ const routes = [
     method: 'PUT',
     path: `${BASE_PATH}/{id}`,
     handler: modifyItem,
+    options: {
+      validate: {
+        payload: modifyItemPayload,
+      },
+    },
   },
   {
     method: 'DELETE',

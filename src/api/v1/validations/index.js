@@ -4,6 +4,7 @@ const exercises = require('./exercises')(Joi);
 const users = require('./users')(Joi);
 const words = require('./words')(Joi);
 const avatars = require('./avatars')(Joi);
+const items = require('./items')(Joi);
 
 module.exports = {
   assessments,
@@ -11,4 +12,5 @@ module.exports = {
   users,
   words,
   avatars,
+  items,
 };
