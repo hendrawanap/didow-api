@@ -182,7 +182,7 @@ const createExercise = async (request, h) => {
   };
 
   // Add exercise object to the 'exercises' collection
-  const { db } = request.server.app.firestore;
+  const { db, FieldValue } = request.server.app.firestore;
   let createdExercise;
   try {
     createdExercise = await db.collection('exercises').add(exerciseObject);
@@ -206,6 +206,13 @@ const createExercise = async (request, h) => {
       type: wrongAnswer.type,
     },
   ));
+
+  const weightPointIncrement = (questionsQty - wrongAnswers.length) * 2;
+
+  batch.update(
+    db.collection('users').doc(userId),
+    { weightPoint: FieldValue.increment(weightPointIncrement) },
+  );
 
   try {
     await batch.commit();
