@@ -7,13 +7,16 @@ const routes = [
     path: BASE_PATH,
     handler: (request, h) => {
       const { type } = request.query;
-      if (type === 'auto') {
+      if (type.toLowerCase() === 'auto') {
         return getQuestionsAuto(request, h);
       }
-      if (type === 'custom') {
+      if (type.toLowerCase() === 'custom') {
         return getQuestionsCustom(request, h);
       }
-      return getQuestionsAss(request, h);
+      if (type.toLowerCase() === 'assessment') {
+        return getQuestionsAss(request, h);
+      }
+      return request.server.app.boom.badRequest();
     },
   },
 ];
