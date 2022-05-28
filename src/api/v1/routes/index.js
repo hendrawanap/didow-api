@@ -3,11 +3,23 @@
 const helloRoutes = require('./hello');
 const wordsRoutes = require('./words');
 const questionsRoutes = require('./questions');
+const itemsRoutes = require('./items');
+const suggestionsRoutes = require('./suggestions');
+const avatarsRoutes = require('./avatars');
+const usersRoutes = require('./users');
+const assessmentsRoutes = require('./assessments');
+const exercisesRoutes = require('./exercises');
 
 const routes = [
   helloRoutes,
   wordsRoutes,
   questionsRoutes,
+  itemsRoutes,
+  suggestionsRoutes,
+  avatarsRoutes,
+  usersRoutes,
+  assessmentsRoutes,
+  exercisesRoutes,
 ];
 
 const BASE_PATH = '/api/v1';
