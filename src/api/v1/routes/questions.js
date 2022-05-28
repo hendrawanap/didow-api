@@ -1,4 +1,5 @@
 const { getQuestionsAss, getQuestionsAuto, getQuestionsCustom } = require('../handlers/questions');
+const { getQuestionsQuery } = require('../validations/index').questions;
 
 const BASE_PATH = '/questions';
 const routes = [
@@ -18,6 +19,11 @@ const routes = [
       }
       return request.server.app.boom.badRequest();
     },
+    options: {
+      validate: {
+        query: getQuestionsQuery,
+      }
+    }
   },
 ];
 
