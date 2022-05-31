@@ -67,7 +67,7 @@ const getUser = async (request, h) => {
   }
 
   let userObject;
-  if (weightOnly?.toLowerCase() === 'true') {
+  if (weightOnly) {
     userObject = { id: doc.id, weightPoint: doc.get('weightPoint') };
   } else {
     userObject = { id: doc.id, ...doc.data() };
