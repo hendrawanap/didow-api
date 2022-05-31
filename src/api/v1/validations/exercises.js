@@ -32,8 +32,8 @@ module.exports = (Joi) => {
             type: Joi.string().valid('multipleChoice', 'scrambleWords', 'handwriting').required(),
           }).required(),
         ).required(),
-      }).required(),
-    ).required(),
+      }),
+    ).min(0).required(),
   });
 
   return { getExercisesQuery, getExercisesHeader, createExercisePayload };
