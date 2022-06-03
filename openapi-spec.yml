@@ -899,11 +899,8 @@ paths:
                 img:
                   type: string
                   format: binary
-                json:
-                  type: object
-                  properties:
-                    expectedWord:
-                      type: string
+                expectedWord:
+                  type: string
       responses:
         "200":
           description: Get handwriting analysis data
@@ -931,8 +928,8 @@ paths:
           $ref: "#/components/responses/Unauthorized"
         default:
           $ref: "#/components/responses/UnexpectedError"
-          
-      
+
+
 components:
   schemas:
     Question:
