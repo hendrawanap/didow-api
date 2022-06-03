@@ -9,6 +9,7 @@ const avatarsRoutes = require('./avatars');
 const usersRoutes = require('./users');
 const assessmentsRoutes = require('./assessments');
 const exercisesRoutes = require('./exercises');
+const handwritingsRoutes = require('./handwritings');
 
 const routes = [
   helloRoutes,
@@ -20,6 +21,7 @@ const routes = [
   usersRoutes,
   assessmentsRoutes,
   exercisesRoutes,
+  handwritingsRoutes,
 ];
 
 const BASE_PATH = '/api/v1';
