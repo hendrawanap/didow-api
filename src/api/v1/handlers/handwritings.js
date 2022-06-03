@@ -1,8 +1,10 @@
+/* eslint-disable no-underscore-dangle */
 const { default: axios } = require('axios');
 const { createWriteStream, createReadStream } = require('fs');
 const { unlink } = require('fs/promises');
 const FormData = require('form-data');
 const path = require('path');
+const { analyzeHandwritingPayload: validatePayload } = require('../validations/index').handwritings;
 
 const STORAGE_PATH = '../../../temp';
 
@@ -27,12 +29,20 @@ const deleteFile = async (url) => {
 };
 
 const analyzeHandwriting = async (request, h) => {
-  const { img, json } = request.payload;
+  const { img, expectedWord } = request.payload;
+  const { boom } = request.server.app;
+  const validation = validatePayload.validate({ img: img?._data, expectedWord });
+
+  if (validation.error) {
+    return boom.badRequest();
+  }
+
+  // Temporary save the image file
   const targetUrl = await saveFile(`${Date.now()}-${img.hapi.filename}`, img);
 
   const formData = new FormData();
   formData.append('handwriting', createReadStream(targetUrl));
-  formData.append('data', json);
+  formData.append('data', JSON.stringify({ expectedWord }));
 
   let response;
 
@@ -43,10 +53,10 @@ const analyzeHandwriting = async (request, h) => {
       message: 'success',
     }).code(200);
   } catch (error) {
-    const { boom } = request.server.app;
     response = boom.badImplementation();
   }
 
+  // Delete temporary image file
   await deleteFile(targetUrl);
   return response;
 };

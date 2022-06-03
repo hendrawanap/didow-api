@@ -7,6 +7,7 @@ const avatars = require('./avatars')(Joi);
 const items = require('./items')(Joi);
 const suggestions = require('./suggestions')(Joi);
 const questions = require('./questions')(Joi);
+const handwritings = require('./handwritings')(Joi);
 
 module.exports = {
   assessments,
@@ -17,4 +18,5 @@ module.exports = {
   items,
   suggestions,
   questions,
+  handwritings,
 };
