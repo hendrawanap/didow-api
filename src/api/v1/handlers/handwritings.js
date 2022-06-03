@@ -6,7 +6,7 @@ const FormData = require('form-data');
 const path = require('path');
 const { analyzeHandwritingPayload: validatePayload } = require('../validations/index').handwritings;
 
-const STORAGE_PATH = '../../../temp';
+const STORAGE_PATH = process.env.NODE_ENV === 'production' ? '../temp' : '../../../temp';
 
 const saveFile = async (url, fileStream) => {
   const targetUrl = path.join(__dirname, STORAGE_PATH, url);
