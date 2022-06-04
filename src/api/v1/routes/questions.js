@@ -22,8 +22,8 @@ const routes = [
     options: {
       validate: {
         query: getQuestionsQuery,
-      }
-    }
+      },
+    },
   },
 ];
 
