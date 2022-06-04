@@ -1,6 +1,7 @@
 const { getExercises, createExercise } = require('../handlers/exercises');
 const { getExercisesQuery, getExercisesHeader, createExercisePayload } = require('../validations/index').exercises;
 
+const auth = process.env.USE_AUTH === 'true' ? 'firebase-auth-token' : null;
 const BASE_PATH = '/exercises';
 const routes = [
   {
@@ -8,6 +9,7 @@ const routes = [
     path: BASE_PATH,
     handler: getExercises,
     options: {
+      auth,
       validate: {
         query: getExercisesQuery,
         headers: getExercisesHeader,
@@ -22,6 +24,7 @@ const routes = [
     path: BASE_PATH,
     handler: createExercise,
     options: {
+      auth,
       validate: {
         payload: createExercisePayload,
       },

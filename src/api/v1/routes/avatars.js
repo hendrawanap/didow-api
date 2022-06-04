@@ -11,6 +11,7 @@ const {
   modifyAvatarQuery,
 } = require('../validations/index').avatars;
 
+const auth = process.env.USE_AUTH === 'true' ? 'firebase-auth-token' : null;
 const BASE_PATH = '/avatars';
 const routes = [
   {
@@ -18,6 +19,7 @@ const routes = [
     path: BASE_PATH,
     handler: getAvatars,
     options: {
+      auth,
       validate: {
         query: getAvatarsQuery,
       },
@@ -28,6 +30,7 @@ const routes = [
     path: BASE_PATH,
     handler: createAvatar,
     options: {
+      auth,
       validate: {
         query: createAvatarQuery,
       },
@@ -37,12 +40,16 @@ const routes = [
     method: 'GET',
     path: `${BASE_PATH}/{id}`,
     handler: getAvatar,
+    options: {
+      auth,
+    },
   },
   {
     method: 'PUT',
     path: `${BASE_PATH}/{id}`,
     handler: modifyAvatar,
     options: {
+      auth,
       validate: {
         query: modifyAvatarQuery,
       },
