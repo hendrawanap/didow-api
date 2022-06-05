@@ -47,7 +47,8 @@ const analyzeHandwriting = async (request, h) => {
   let response;
 
   try {
-    const { data } = await axios.post(process.env.ML_API_URL, formData);
+    const apiURL = `${process.env.ML_API_URL}api/v1/handwritings`;
+    const { data } = await axios.post(apiURL, formData);
     response = h.response({
       data,
       message: 'success',
