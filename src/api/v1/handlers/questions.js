@@ -79,9 +79,9 @@ const questionsLogger = (questions) => {
   console.log('Scramble Words: ', questions.filter((question) => question.type === 'scrambleWords').length);
   console.log('Handwriting: ', questions.filter((question) => question.type === 'handwriting').length);
 
-  console.log('Easy: ', questions.filter((question) => question.syllables < 4).length);
-  console.log('Medium: ', questions.filter((question) => question.syllables === 4).length);
-  console.log('Hard: ', questions.filter((question) => question.syllables > 4).length);
+  console.log('Easy: ', questions.filter((question) => question.syllables === 2).length);
+  console.log('Medium: ', questions.filter((question) => question.syllables === 3).length);
+  console.log('Hard: ', questions.filter((question) => question.syllables >= 4).length);
 };
 
 // klo assesment 21 (7 m [2 pilgan - 2 susun - 3 tulis] - 7 sdg -7 slt)
@@ -130,9 +130,9 @@ const makeHandWritingQuestion = (wordObject) => {
 const getWords = async (db, level) => {
   let ref = db.collection('words');
   switch (level.toLowerCase()) {
-    case 'easy': ref = ref.where('syllables', '<', 4); break;
-    case 'medium': ref = ref.where('syllables', '==', 4); break;
-    case 'hard': ref = ref.where('syllables', '>', 4); break;
+    case 'easy': ref = ref.where('syllables', '==', 2); break;
+    case 'medium': ref = ref.where('syllables', '==', 3); break;
+    case 'hard': ref = ref.where('syllables', '>=', 4); break;
     default: break;
   }
   const snapshot = await ref.get();
@@ -144,24 +144,24 @@ const getWords = async (db, level) => {
 const getQuestionsAss = async (request, h) => {
   const words = [];
   const { db } = request.server.app.firestore;
-
+  const QTY_PER_LEVEL = 4;
   // easy
   const wordsEasy = await getWords(db, 'easy');
-  words.push(...randomizeWords(wordsEasy));
+  words.push(...randomizeWords(wordsEasy, QTY_PER_LEVEL));
 
   // medium
   const wordsMedium = await getWords(db, 'medium');
-  words.push(...randomizeWords(wordsMedium));
+  words.push(...randomizeWords(wordsMedium, QTY_PER_LEVEL));
 
   // hard
   const wordsHard = await getWords(db, 'hard');
-  words.push(...randomizeWords(wordsHard));
+  words.push(...randomizeWords(wordsHard, QTY_PER_LEVEL));
 
   const questions = words.map((wordObject, index) => {
-    if (index % 7 === 0 || index % 7 === 1) {
+    if (index % QTY_PER_LEVEL === 0) {
       return makeMultipleChoicesQuestion(wordObject);
     }
-    if (index % 7 === 2 || index % 7 === 3) {
+    if (index % QTY_PER_LEVEL === 1) {
       return makeScrambleWordsQuestion(wordObject);
     }
     return makeHandWritingQuestion(wordObject);
