@@ -64,9 +64,11 @@ const makeScramble = (word) => {
 };
 
 const makeHangman = (word) => {
-  const newWord = word;
-  for (let i = 0; i < word.length / 2 + 1; i += 1) {
-    const index = Math.floor(Math.random() * word.length);
+  const newWord = word.split('');
+  const indexes = newWord.map((_, index) => index);
+  for (let i = 0; i < word.length / 2; i += 1) {
+    const random = Math.floor(Math.random() * indexes.length);
+    const index = indexes.splice(random, 1);
     newWord[index] = '_';
   }
   return newWord;
@@ -121,7 +123,7 @@ const makeHandWritingQuestion = (wordObject) => {
   const question = { ...wordObject };
   question.type = 'handwriting';
   question.handWriting = {};
-  question.handWriting.hintHangman = makeHangman(wordObject.word.split('')); // ada yg dijadiin _, setengah atau lebih (done)
+  question.handWriting.hintHangman = makeHangman(wordObject.word);
   return question;
 };
 
