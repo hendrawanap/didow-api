@@ -1,23 +1,66 @@
-const makeChoice = (word) => {
-  let newWord = word;
-  for (let i = 0; i < 2; i += 1) {
-    const index = word[Math.floor(Math.random() * word.length)];
-    const alphabet = 'abcdefghijklmnopqrstuvwxyz';
-    const randomLetter = alphabet[Math.floor(Math.random() * alphabet.length)];
-    newWord = newWord.replace(index, randomLetter);
+const dictionary = {
+  a: ['b', 'c', 'd', 'e', 'o', 'p', 'q', 'u', 'v', 'w'],
+  b: ['d', 'p', 'q', 'r'],
+  c: ['e', 'k', 'u', 'v'],
+  d: ['b', 'p', 'q'],
+  e: ['a', 'o'],
+  f: ['e'],
+  g: ['b', 'c', 'd', 'o', 'p', 'q'],
+  h: ['m', 'n', 'u', 'v'],
+  i: ['j', 'l', 't', 'y'],
+  j: ['i', 'l', 'u', 'y'],
+  k: ['c', 'x'],
+  l: ['i', 'r'],
+  m: ['n', 'u'],
+  n: ['m', 'u'],
+  o: ['a', 'b', 'c', 'd', 'e', 'p', 'q', 'u'],
+  p: ['b', 'd', 'q', 'r'],
+  q: ['b', 'd', 'g', 'o', 'p'],
+  r: ['b', 'd', 'l', 'p', 'q'],
+  s: ['x', 'z'],
+  t: ['i'],
+  u: ['n', 'm', 'v', 'w'],
+  v: ['n', 'm', 'u', 'w'],
+  w: ['n', 'm', 'u', 'v'],
+  x: ['k'],
+  y: ['i', 'u', 'v'],
+  z: ['s'],
+  '-': ['-'],
+};
+
+const shuffleArray = (array) => {
+  const newArray = [...array];
+  for (let i = newArray.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const temp = newArray[i];
+    newArray[i] = newArray[j];
+    newArray[j] = temp;
   }
-  return newWord;
+  return newArray;
+};
+
+const makeChoice = (word) => {
+  const letters = word.split('');
+  for (let i = 0; i < 2; i += 1) {
+    const index = Math.floor(Math.random() * word.length);
+    const letter = word[index];
+    const alphabet = dictionary[letter];
+    const randomLetter = alphabet[Math.floor(Math.random() * alphabet.length)];
+    letters[index] = randomLetter;
+  }
+  return letters.join('');
 };
 
 const makeScramble = (word) => {
-  const kata = word;
+  const letters = word.split('');
   for (let i = 0; i < 2; i += 1) {
-    const alphabet = 'abcdefghijklmnopqrstuvwxyz';
+    const index = Math.floor(Math.random() * word.length);
+    const letter = word[index];
+    const alphabet = dictionary[letter];
     const randomLetter = alphabet[Math.floor(Math.random() * alphabet.length)];
-    kata.push(randomLetter);
+    letters.push(randomLetter);
   }
-  const letters = kata.sort(() => Math.random() - 0.5);
-  return letters;
+  return shuffleArray(letters);
 };
 
 const makeHangman = (word) => {
@@ -60,7 +103,8 @@ const makeMultipleChoicesQuestion = (wordObject) => {
   for (let i = 0; i < 3; i += 1) {
     ans.push(makeChoice(wordObject.word));
   }
-  question.multipleChoice = { choices: [wordObject.word, ...ans] };
+  const choices = shuffleArray([wordObject.word, ...ans]);
+  question.multipleChoice = { choices };
   return question;
 };
 
@@ -68,8 +112,8 @@ const makeScrambleWordsQuestion = (wordObject) => {
   const question = { ...wordObject };
   question.type = 'scrambleWords';
   question.scrambleWords = {};
-  question.scrambleWords.letters = makeScramble(wordObject.word.split('')); // diacak sm ditambahin huruf (done)
-  question.scrambleWords.hintHangman = makeHangman(wordObject.word.split('')); // ada yg dijadiin _, setengah atau lebih (done)
+  question.scrambleWords.letters = makeScramble(wordObject.word);
+  question.scrambleWords.hintHangman = makeHangman(wordObject.word);
   return question;
 };
 
