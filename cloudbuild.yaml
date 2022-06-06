@@ -24,7 +24,7 @@ steps:
       - '--region=$_DEPLOY_REGION'
       - '--set-env-vars'
       - >-
-        NODE_ENV=production,ML_API_URL=${_ML_API_URL}
+        NODE_ENV=production,ML_API_URL=${_ML_API_URL},BUCKET_NAME=${_BUCKET_NAME}
       - '--quiet'
     id: Deploy
     entrypoint: gcloud
