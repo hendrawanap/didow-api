@@ -141,10 +141,48 @@ const getWords = async (db, level) => {
   return words;
 };
 
+const getSignedHintImgUrlWords = async (words, bucket) => {
+  const filesPromises = [];
+  const BASE_PATH = 'word-images';
+  const newWords = [...words];
+  newWords.forEach((word) => {
+    const promise = bucket.getFiles({ prefix: `${BASE_PATH}/${word.hintImg}` });
+    filesPromises.push(promise);
+  });
+
+  const files = await Promise.allSettled(filesPromises);
+  const urlsPromises = [];
+  files.forEach(async (file) => {
+    if (file.status === 'fulfilled') {
+      if (file.value[0].length !== 0) {
+        urlsPromises.push(file.value[0][0].getSignedUrl({ expires: Date.now() + 360000, action: 'read' }));
+      } else {
+        urlsPromises.push(Promise.reject());
+      }
+    } else {
+      urlsPromises.push(Promise.reject());
+    }
+  });
+
+  const urls = await Promise.allSettled(urlsPromises);
+  urls.forEach((url, index) => {
+    if (url.status === 'fulfilled') {
+      const [signedUrl] = url.value;
+      newWords[index].hintImg = signedUrl;
+    } else {
+      newWords[index].hintImg = null;
+    }
+  });
+
+  return newWords;
+};
+
 const getQuestionsAss = async (request, h) => {
   const words = [];
   const { db } = request.server.app.firestore;
   const QTY_PER_LEVEL = 4;
+  const { bucket } = request.server.app.storage;
+
   // easy
   const wordsEasy = await getWords(db, 'easy');
   words.push(...randomizeWords(wordsEasy, QTY_PER_LEVEL));
@@ -157,7 +195,13 @@ const getQuestionsAss = async (request, h) => {
   const wordsHard = await getWords(db, 'hard');
   words.push(...randomizeWords(wordsHard, QTY_PER_LEVEL));
 
-  const questions = words.map((wordObject, index) => {
+  let signedWords = null;
+  try {
+    signedWords = await getSignedHintImgUrlWords(words, bucket);
+  } catch (error) {
+    signedWords = words.map((word) => ({ ...word, hintImg: null }));
+  }
+  const questions = signedWords.map((wordObject, index) => {
     if (index % QTY_PER_LEVEL === 0) {
       return makeMultipleChoicesQuestion(wordObject);
     }
@@ -168,7 +212,6 @@ const getQuestionsAss = async (request, h) => {
   });
 
   // questionsLogger(questions);
-
   const response = {
     data: questions,
     message: 'success',
@@ -182,6 +225,7 @@ const getQuestionsAuto = async (request, h) => {
   const { db } = request.server.app.firestore;
   const { weightPoint } = request.query;
   const words = [];
+  const { bucket } = request.server.app.storage;
 
   if (weightPoint <= 100) {
     // easy
@@ -197,7 +241,13 @@ const getQuestionsAuto = async (request, h) => {
     words.push(...randomizeWords(wordsHard));
   }
 
-  const questions = words.map((wordObject, index) => {
+  let signedWords = null;
+  try {
+    signedWords = await getSignedHintImgUrlWords(words, bucket);
+  } catch (error) {
+    signedWords = words.map((word) => ({ ...word, hintImg: null }));
+  }
+  const questions = signedWords.map((wordObject, index) => {
     if (index < 2) {
       return makeMultipleChoicesQuestion(wordObject);
     }
@@ -242,6 +292,7 @@ const randomNum = (max, qty, len = 1) => {
 const getQuestionsCustom = async (request, h) => {
   const words = [];
   let random = [];
+  const { bucket } = request.server.app.storage;
 
   const { db } = request.server.app.firestore;
   const {
@@ -286,8 +337,14 @@ const getQuestionsCustom = async (request, h) => {
     }
   }
 
+  let signedWords = null;
+  try {
+    signedWords = await getSignedHintImgUrlWords(words, bucket);
+  } catch (error) {
+    signedWords = words.map((word) => ({ ...word, hintImg: null }));
+  }
   // nentuin jenis
-  const questions = words.map((wordObject, index) => {
+  const questions = signedWords.map((wordObject, index) => {
     if (index % 3 === 0) {
       return makeMultipleChoicesQuestion(wordObject);
     }

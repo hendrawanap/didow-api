@@ -16,10 +16,11 @@ const init = async () => {
     },
   });
 
-  const { firestore, auth: firebaseAuth } = await firebase.init();
+  const { firestore, auth: firebaseAuth, storage } = await firebase.init();
   server.app.auth = firebaseAuth;
   server.app.firestore = firestore;
   server.app.boom = boom;
+  server.app.storage = storage;
 
   await server.register(auth);
   await server.register(routes);
