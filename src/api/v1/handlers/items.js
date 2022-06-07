@@ -1,36 +1,34 @@
-const getWords = async (request, h) => {
+const getItems = async (request, h) => {
   const { db } = request.server.app.firestore;
 
-  const snapshot = await db.collection('words').get();
-  const words = [];
+  const snapshot = await db.collection('items').get();
+  const items = [];
   snapshot.forEach((doc) => {
-    const { word, syllables, hintImg } = doc.data();
-    const wordObject = {
+    const { assetUrl, type } = doc.data();
+    const itemObject = {
       id: doc.id,
-      word,
-      syllables,
-      hintImg,
+      assetUrl,
+      type,
     };
-    words.push(wordObject);
+    items.push(itemObject);
   });
 
   const response = {
-    data: words,
+    data: items,
     message: 'success',
   };
   return h.response(response).code(200);
 };
 
-const createWord = async (request, h) => {
-  const { word, syllables, hintImg } = request.payload;
-  const wordObject = {
-    word,
-    syllables,
-    hintImg,
+const createItem = async (request, h) => {
+  const { assetUrl, type } = request.payload;
+  const itemObject = {
+    assetUrl,
+    type,
   };
 
   const { db } = request.server.app.firestore;
-  const result = await db.collection('words').add(wordObject);
+  const result = await db.collection('items').add(itemObject);
 
   const response = {
     message: 'success',
@@ -42,27 +40,27 @@ const createWord = async (request, h) => {
   return h.response(response).code(201);
 };
 
-const getWord = async (request, h) => {
+const getItem = async (request, h) => {
   const { id } = request.params;
 
   const { db } = request.server.app.firestore;
-  const doc = await db.collection('words').doc(id).get();
+  const doc = await db.collection('items').doc(id).get();
+  const { assetUrl, type } = doc.data();
 
-  if (!doc.exists) {
-    const { boom } = request.server.app;
-    return boom.notFound();
-  }
-
-  const wordObject = { id: doc.id, ...doc.data() };
+  const itemObject = {
+    id: doc.id,
+    assetUrl,
+    type,
+  };
 
   const response = {
-    data: wordObject,
+    data: itemObject,
     message: 'success',
   };
   return h.response(response).code(200);
 };
 
-const modifyWord = async (request, h) => {
+const modifyItem = async (request, h) => {
   const { boom } = request.server.app;
   let payloadIsEmpty = false;
   if (request.payload === null) {
@@ -76,15 +74,14 @@ const modifyWord = async (request, h) => {
   }
 
   const { id } = request.params;
-  const { word, syllables, hintImg } = request.payload;
-  const wordObject = {};
-  if (word !== undefined) wordObject.word = word;
-  if (syllables !== undefined) wordObject.syllables = syllables;
-  if (hintImg !== undefined) wordObject.hintImg = hintImg;
+  const { assetUrl, type } = request.payload;
+  const itemObject = {};
+  if (assetUrl !== undefined) itemObject.assetUrl = assetUrl;
+  if (type !== undefined) type.syllables = type;
 
   const { db } = request.server.app.firestore;
   try {
-    await db.collection('words').doc(id).update(wordObject);
+    await db.collection('items').doc(id).update(itemObject);
   } catch (error) {
     if (error.message.includes('NOT_FOUND')) {
       return boom.notFound();
@@ -102,13 +99,13 @@ const modifyWord = async (request, h) => {
   return h.response(response).code(200);
 };
 
-const deleteWord = async (request, h) => {
+const deleteItem = async (request, h) => {
   const { id } = request.params;
 
   const { db } = request.server.app.firestore;
   const { boom } = request.server.app;
   try {
-    await db.collection('words').doc(id).delete({ exists: true });
+    await db.collection('items').doc(id).delete({ exists: true });
   } catch (error) {
     if (error.message.includes('NOT_FOUND')) {
       return boom.notFound();
@@ -127,9 +124,9 @@ const deleteWord = async (request, h) => {
 };
 
 module.exports = {
-  getWords,
-  createWord,
-  getWord,
-  modifyWord,
-  deleteWord,
+  getItems,
+  createItem,
+  getItem,
+  modifyItem,
+  deleteItem,
 };
