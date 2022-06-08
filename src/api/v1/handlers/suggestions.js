@@ -11,9 +11,9 @@ const getSuggestion = async (request, h) => {
   const { weightPoint } = doc.data();
 
   const SUGGESTIONS = {
-    BEGINNER: 'Ini rekomendasi untuk kelas pemula',
-    INTERMEDIATE: 'Ini rekomendasi untuk kelas menengah',
-    EXPERT: 'Ini rekomendasi untuk kelas ahli',
+    BEGINNER: 'Yuk, tingkatkan lagi kemampuanmu dengan melakukan latihan berulang-ulang. Kamu saat ini sedang berada pada tingkat dua suku kata.',
+    INTERMEDIATE: 'Bagus, kamu sudah melewati tingkat dua suku kata. Yuk, tingkatkan lagi kemampuanmu dengan melakukan latihan berulang-ulang. Kamu saat ini sedang berada pada tingkat tiga suku kata.',
+    EXPERT: 'Kamu hebat, sekarang kamu sudah melewati tingkat tiga suku kata. Yuk, lanjutkan latihanmu untuk agar kemampuanmu semakin meningkat. Kamu juga bisa loh mencoba fitur kustom soal.',
   };
 
   const response = {
