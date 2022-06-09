@@ -30,6 +30,7 @@ module.exports = (Joi) => {
             word: Joi.string().required(),
             answer: Joi.string().required(),
             type: Joi.string().valid('multipleChoice', 'scrambleWords', 'handwriting').required(),
+            isReversed: Joi.boolean().optional(),
           }).required(),
         ).required(),
       }),

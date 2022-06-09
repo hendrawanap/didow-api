@@ -14,7 +14,12 @@ const getExercisesGroupByAnswers = async (db, ref) => {
   const wrongAnswersSnapshots = await Promise.all(wrongAnswersPromises);
   wrongAnswersSnapshots.forEach((snapshot, index) => {
     snapshot.forEach((doc) => {
-      const { word, type, attempts } = doc.data();
+      const {
+        word,
+        type,
+        attempts,
+        reverses,
+      } = doc.data();
       const wrongAnswer = {
         number: parseInt(doc.id, 10),
         word,
@@ -23,6 +28,13 @@ const getExercisesGroupByAnswers = async (db, ref) => {
           answer: attempt, attemptNumber: subIndex + 1,
         })),
       };
+
+      if (reverses !== null && reverses !== undefined) {
+        reverses.forEach((isReversed, attemptIndex) => {
+          wrongAnswer.attempts[attemptIndex].isReversed = isReversed;
+        });
+      }
+
       exercises[index].wrongAnswers.push(wrongAnswer);
     });
   });
@@ -41,12 +53,19 @@ const transfromWrongAnswersToAttempts = (wrongAnswers) => {
           wrongAnswers: [],
         };
       }
-      attempts[index + 1].wrongAnswers.push({
+
+      const wrongAnswerObject = {
         number: wrongAnswer.number,
         word: wrongAnswer.word,
         type: wrongAnswer.type,
         answer: attempt.answer,
-      });
+      };
+
+      if (attempt.isReversed !== null && attempt.isReversed !== undefined) {
+        wrongAnswerObject.isReversed = attempt.isReversed;
+      }
+
+      attempts[index + 1].wrongAnswers.push(wrongAnswerObject);
     });
   });
 
@@ -153,10 +172,22 @@ const transformAttemptsToWrongAnswers = (attempts) => {
           type: wrongAnswer.type,
           word: wrongAnswer.word,
         };
+
+        if (wrongAnswer.type === 'handwriting') {
+          if (wrongAnswer.isReversed !== null && wrongAnswer.isReversed !== undefined) {
+            wrongAnswers[wrongAnswer.number].reverses = [wrongAnswer.isReversed];
+          }
+        }
       });
     } else {
       attempt.forEach((wrongAnswer) => {
         wrongAnswers[wrongAnswer.number].attempts.push(wrongAnswer.answer);
+
+        if (wrongAnswer.type === 'handwriting') {
+          if (wrongAnswer.isReversed !== null && wrongAnswer.isReversed !== undefined) {
+            wrongAnswers[wrongAnswer.number].reverses.push(wrongAnswer.isReversed);
+          }
+        }
       });
     }
   });
@@ -195,17 +226,25 @@ const createExercise = async (request, h) => {
 
   // Add transformed attempts to 'wrongAnswers' subcollections
   const batch = db.batch();
-  wrongAnswers.forEach((wrongAnswer) => batch.set(
-    db.collection('exercises')
-      .doc(createdExercise.id)
-      .collection('wrongAnswers')
-      .doc(wrongAnswer.number.toString()),
-    {
+  wrongAnswers.forEach((wrongAnswer) => {
+    const wrongAnswerObject = {
       word: wrongAnswer.word,
       attempts: wrongAnswer.attempts,
       type: wrongAnswer.type,
-    },
-  ));
+    };
+
+    if (wrongAnswer.reverses !== null && wrongAnswer.reverses !== undefined) {
+      wrongAnswerObject.reverses = wrongAnswer.reverses;
+    }
+
+    batch.set(
+      db.collection('exercises')
+        .doc(createdExercise.id)
+        .collection('wrongAnswers')
+        .doc(wrongAnswer.number.toString()),
+      wrongAnswerObject,
+    );
+  });
 
   const weightPointIncrement = (questionsQty - wrongAnswers.length) * 2;
 
@@ -217,7 +256,7 @@ const createExercise = async (request, h) => {
   try {
     await batch.commit();
   } catch (error) {
-    boom.badImplementation(error.message);
+    return boom.badImplementation(error.message);
   }
 
   return h.response({ message: 'success', createdAt: Date.now() }).code(200);
