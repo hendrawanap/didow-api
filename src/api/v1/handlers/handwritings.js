@@ -30,6 +30,7 @@ const deleteFile = async (url) => {
 
 const analyzeHandwriting = async (request, h) => {
   const { img, expectedWord } = request.payload;
+  const { version } = request.query;
   const { boom } = request.server.app;
   const validation = validatePayload.validate({ img: img?._data, expectedWord });
 
@@ -47,7 +48,12 @@ const analyzeHandwriting = async (request, h) => {
   let response;
 
   try {
-    const apiURL = `${process.env.ML_API_URL}/api/v1/handwritings`;
+    let apiURL = `${process.env.ML_API_URL}/api/v1/handwritings`;
+
+    if (version) {
+      apiURL += `?version=${version}`;
+    }
+
     const { data } = await axios.post(apiURL, formData);
     response = h.response({
       data,
