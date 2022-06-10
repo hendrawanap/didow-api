@@ -180,7 +180,7 @@ const getSignedHintImgUrlWords = async (words, bucket) => {
 const getQuestionsAss = async (request, h) => {
   const words = [];
   const { db } = request.server.app.firestore;
-  const QTY_PER_LEVEL = 4;
+  const QTY_PER_LEVEL = 3;
   const { bucket } = request.server.app.storage;
 
   // easy
