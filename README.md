@@ -21,6 +21,9 @@ Here's why:
 ## OpenAPI Documentation Page
 You can go to [this link](https://documenter.getpostman.com/view/16016438/Uz5KjtYP) to view the API documentation.
 
+## Google Cloud Platform Diagram
+![gcp-diagram](https://user-images.githubusercontent.com/58871768/173245497-8a53a046-4008-4aba-96ec-6aec5112161d.png)
+
 ## Prerequisites Tools:
 - Git
 - Code Editor (e.g., Visual Studio Code)
