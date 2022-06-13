@@ -55,6 +55,16 @@ You can go to [this link](https://documenter.getpostman.com/view/16016438/Uz5Kjt
     npm run dev
     ```
 
+## GCP Installation:
+1. Fork [this repository](https://github.com/hendrawanap/didow-api.git) to your GitHub repository
+2. Create a trigger in Cloud Build
+3. Point the source from your forked repository
+4. Configure the configuration type to use "Cloud Build configuration file (yaml or json)" & the configuration location to use "Repository" with "Cloud Build configuration file location" pointed to "/cloudbuild.yaml"
+5. Set "_ML_API_URL" substitution variable to your deployed ML API's URL
+6. Set "_BUCKET_NAME" substitution variable to your project images' Cloud Storage bucket's name
+7. Save configured Cloud Build Trigger
+8. Run the trigger
+
 ## Folder Structure
 ```
 src
@@ -73,16 +83,6 @@ src
  ...
  ...
 ```
-
-## GCP Installation:
-1. Fork [this repository](https://github.com/hendrawanap/didow-api.git) to your GitHub repository
-2. Create a trigger in Cloud Build
-3. Point the source from your forked repository
-4. Configure the configuration type to use "Cloud Build configuration file (yaml or json)" & the configuration location to use "Repository" with "Cloud Build configuration file location" pointed to "/cloudbuild.yaml"
-5. Set "_ML_API_URL" substitution variable to your deployed ML API's URL
-6. Set "_BUCKET_NAME" substitution variable to your project images' Cloud Storage bucket's name
-7. Save configured Cloud Build Trigger
-8. Run the trigger
 
 # Notes
 This repository is a part of our Didow Project
